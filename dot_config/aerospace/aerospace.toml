@@ -6,6 +6,11 @@ config-version = 2
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = []
 
+on-window-detected = [
+    { check-further-callbacks = true, run = 'layout floating', },
+    # all other callbacks...
+]
+
 # Start AeroSpace at login
 start-at-login = true
 
@@ -173,7 +178,21 @@ on-mode-changed = []
 [mode.service.binding]
     esc = ['reload-config', 'mode main']
     r = ['flatten-workspace-tree', 'mode main'] # reset layout
-    t = ['layout floating tiling', 'mode main'] # Toggle between floating and tiling layout
+    # Toggle every window in the focused workspace between floating and tiling
+    t = [
+        '''exec-and-forget aero=/opt/homebrew/bin/aerospace
+ws="$($aero list-workspaces --focused)"
+current="$($aero list-windows --focused --format %{window-layout})"
+if [[ "$current" == "floating" ]]; then
+    target=tiling
+else
+    target=floating
+fi
+$aero list-windows --workspace "$ws" --format %{window-id} | while read -r id; do
+    $aero layout "$target" --window-id "$id"
+done''',
+        'mode main',
+    ]
     backspace = ['close-all-windows-but-current', 'mode main']
 
     # sticky is not yet supported https://github.com/nikitabobko/AeroSpace/issues/2
@@ -187,8 +206,4 @@ on-mode-changed = []
 # aerospace list-apps
 [[on-window-detected]]
 if.app-id = "com.googlecode.iterm2"
-run = "move-node-to-workspace 3"
-
-
-
-
+run = 'move-node-to-workspace 3'
