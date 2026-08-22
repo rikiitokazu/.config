@@ -43,7 +43,6 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 # ===============================
 # Eza (better ls)
 # ===============================
-export EZA_CONFIG_DIR=~/.config/eza
 alias ls="eza --color=always --long --no-filesize --icons=always --no-time --no-user --no-permissions"
 alias la="eza --color=always --long --all --no-filesize --icons=always --no-time --no-user --no-permissions"
 alias ll="eza --color=always --long --all --icons=always --no-time"
@@ -58,9 +57,9 @@ eval "$(zoxide init zsh)"
 alias cd="z"
 
 # ===============================
-# Bat (better cat)
+# Eza (better ls)
 # ===============================
-alias cat="bat"
+export EZA_CONFIG_DIR=~/.config/eza
 
 # ===============================
 # Starship
@@ -75,30 +74,20 @@ eval "$(starship init zsh)"
 
 
 # ===============================
-# Sesh (tmux session manager)
+# Tmux sessionizer 
 # - Navigate sessions
 # ===============================
-function sesh-sessions() {
+# chmod +x /.local/bin/tmux-sessionizer
+function tmux-sessionizer() {
   {
-    exec </dev/tty
-    exec <&1
-    local sessions
-    local selected  
-    sessions=$(sesh list -t -c -z)
-    selected=$(printf "%s\n" "$sessions" | fzf --ansi --height 50% --bind='enter:accept-or-print-query' --reverse --border --prompt ' ')
-    zle reset-prompt > /dev/null 2>&1 || true
-    if [[ $'\n'"$sessions"$'\n' == *$'\n'"$selected"$'\n'* ]]; then
-      sesh connect "$selected"
-    else
-      tmux new-session -s "$selected" -c "$HOME"
-    fi
+    ~/.local/bin/tmux-sessionizer
   }
 }
 
-zle     -N             sesh-sessions
-bindkey -M emacs '\es' sesh-sessions
-bindkey -M vicmd '\es' sesh-sessions
-bindkey -M viins '\es' sesh-sessions
+zle     -N             tmux-sessionizer 
+bindkey -M emacs '\es' tmux-sessionizer
+bindkey -M vicmd '\es' tmux-sessionizer
+bindkey -M viins '\es' tmux-sessionizer
 
 # ===============================
 # Nvim
